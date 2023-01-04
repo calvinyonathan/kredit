@@ -1,18 +1,17 @@
 package main
 
 import (
-	"net/http"
+	"calvin/kredit/api"
 
-	"github.com/gin-gonic/gin"
+	_ "github.com/joho/godotenv/autoload"
 )
 
-func handler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "hello world",
-	})
-}
 func main() {
-	r := gin.Default()
-	r.GET("/", handler)
-	r.Run(":8080")
+	db, err := api.SetupDb()
+	if err != nil {
+		panic(err)
+	}
+
+	server := api.MakeServer(db)
+	server.RunServer()
 }
