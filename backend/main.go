@@ -14,4 +14,5 @@ func main() {
 
 	server := api.MakeServer(db)
 	server.RunServer()
+
 }
