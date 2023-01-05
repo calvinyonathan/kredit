@@ -40,7 +40,7 @@ func SetupDb() (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 	if os.Getenv("AUTO_MIGRATE") == "Y" {
-		if err := db.AutoMigrate(model.Customer_Data_Tabs{}, model.Mst_Company_Tabs{}, model.Branch_Tabs{}, model.Loan_Data_Tabs{}, model.Skala_Rental_Tabs{}, model.Vehicle_Data_Tabs{}, model.Staging_Customers{}, model.Staging_Errors{}); err != nil {
+		if err := db.AutoMigrate(model.Config_Properties{}, model.ID_Tabs{}, model.Customer_Data_Tabs{}, model.Mst_Company_Tabs{}, model.Branch_Tabs{}, model.Loan_Data_Tabs{}, model.Skala_Rental_Tabs{}, model.Vehicle_Data_Tabs{}, model.Staging_Customers{}, model.Staging_Errors{}); err != nil {
 			return nil, fmt.Errorf("failed to migrate database: %w", err)
 		}
 	}
