@@ -4,7 +4,6 @@ import (
 	"calvin/kredit/model"
 	"fmt"
 	"log"
-	"regexp"
 	"strconv"
 	"time"
 
@@ -84,6 +83,19 @@ func (r *repository) validateTglPK(TglPK string, currentMonth int) bool {
 func (r *repository) validateError(ID int64) {
 	var Staging []model.Staging_Customers
 	r.db.Model(&Staging).Where("id=?", ID).Update("sc_flag", "8")
+
+}
+func (r *repository) insertStagingError(SeReff string, SeCreateDate time.Time, BranchCode string, Company string, Ppk string, Name string, Reason string) {
+	Staging_Error := model.Staging_Errors{
+		SeReff:       SeReff,
+		SeCreateDate: SeCreateDate,
+		BranchCode:   BranchCode,
+		Company:      Company,
+		Ppk:          Ppk,
+		Name:         Name,
+		ErrorDesc:    Reason,
+	}
+	r.db.Create(&Staging_Error)
 }
 func (r *repository) insertCustomerDataTab(Custcode string, ppk string, name string, address1 string, address2 string,
 	city string, zip string, birthPlace string, birthDate time.Time, ID_type int8, ID_Number string, MobileNo string,
@@ -109,8 +121,8 @@ func (r *repository) insertCustomerDataTab(Custcode string, ppk string, name str
 	}
 	r.db.Create(&Customer)
 }
-func (r *repository) insertLoanDataTab(Custcode string, Branch string, OTR string, DownPayment string, LoanAmount string, LoanPeriod string, InterestFlat float32, InterestEffective float32,
-	EffectivePaymentType int8, MonthlyPayment string, inputDate time.Time, InputDate2 time.Time) {
+func (r *repository) insertLoanDataTab(Custcode string, Branch string, OTR float64, DownPayment float64, LoanAmount float64, LoanPeriod string, InterestFlat float32, InterestEffective float32,
+	EffectivePaymentType int8, MonthlyPayment float64, inputDate time.Time, InputDate2 time.Time) {
 	Loan := model.Loan_Data_Tabs{
 		Custcode:             Custcode,
 		Branch:               Branch,
@@ -122,7 +134,7 @@ func (r *repository) insertLoanDataTab(Custcode string, Branch string, OTR strin
 		InterestFlat:         InterestFlat,
 		InterestEffective:    InterestEffective,
 		EffectivePaymentType: EffectivePaymentType,
-		AdminFee:             "30",
+		AdminFee:             30,
 		MonthlyPayment:       MonthlyPayment,
 		InputDate:            inputDate,
 		LastModified:         time.Now(),
@@ -134,7 +146,7 @@ func (r *repository) insertLoanDataTab(Custcode string, Branch string, OTR strin
 	}
 	r.db.Create(&Loan)
 }
-func (r *repository) insertVehicleDataTab(Custcode string, Brand int, Type string, Year string, Golongan int8, Jenis string, Status int8,
+func (r *repository) insertVehicleDataTab(Custcode string, Brand int64, Type string, Year string, Golongan int8, Jenis string, Status int8,
 	Color string, PoliceNo string, EngineNo string, ChasisNo string, Bpkb string, RegisterNo string, Stnk string, StnkAddress1 string,
 	StnkAddress2 string, StnkCity string, DealerID int, InputDate time.Time, Inputby string,
 	LastModified time.Time, Modifiedby string, TglStnk time.Time, TglBpkb time.Time, TglPolis time.Time, PolisNo string, CollateralID int64,
@@ -181,7 +193,7 @@ func (r *repository) GetCustomer() ([]model.Staging_Customers, error) {
 	var Config model.Config_Properties
 	var ID_Tab model.ID_Tabs
 	var Company model.Mst_Company_Tabs
-	var Reason []string
+	//var Reason string
 	currentTime := time.Now()
 
 	res := r.db.Where("sc_flag= ? AND sc_create_date = ?", "0", currentTime.Format("2006-01-02")).Find(&Staging)
@@ -191,62 +203,71 @@ func (r *repository) GetCustomer() ([]model.Staging_Customers, error) {
 	}
 
 	for _, item := range Staging {
-		r.validateCustomer(item.CustomerPpk)
-		if !r.validateCustomer(item.CustomerPpk) {
-			r.validateError(item.ID)
-			Reason = append(Reason, "Validasi Customer")
-			continue
-		}
-		r.validateCompany(item.ScCompany)
-		if !r.validateCompany(item.ScCompany) {
-			r.validateError(item.ID)
-			Reason = append(Reason, "Validasi Company")
-			continue
-		}
-		r.validateBranch(item.ScBranchCode)
-		if !r.validateBranch(item.ScBranchCode) {
-			r.validateError(item.ID)
-			Reason = append(Reason, "Validasi Branch")
-			continue
-		}
+		// r.validateCustomer(item.CustomerPpk)
+		// if !r.validateCustomer(item.CustomerPpk) {
+		// 	r.validateError(item.ID)
+		// 	Reason = "Validasi Salah"
+		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+		// 	continue
+		// }
+		// r.validateCompany(item.ScCompany)
+		// if !r.validateCompany(item.ScCompany) {
+		// 	r.validateError(item.ID)
+		// 	Reason = "Validasi Company"
+		// 	continue
+		// }
+		// r.validateBranch(item.ScBranchCode)
+		// if !r.validateBranch(item.ScBranchCode) {
+		// 	r.validateError(item.ID)
+		// 	Reason = "Validasi Branch"
+		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+		// 	continue
+		// }
 
-		r.validateTglPK(item.LoanTglPk, int(currentTime.Month()))
-		if !r.validateTglPK(item.LoanTglPk, int(currentTime.Month())) {
-			r.validateError(item.ID)
-			Reason = append(Reason, "Validasi Tanggal PK")
-			continue
-		}
+		// r.validateTglPK(item.LoanTglPk, int(currentTime.Month()))
+		// if !r.validateTglPK(item.LoanTglPk, int(currentTime.Month())) {
+		// 	r.validateError(item.ID)
+		// 	Reason = "Validasi Tanggal PK"
+		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+		// 	continue
+		// }
 
-		if item.CustomerIDType == "1" && item.CustomerIDNumber == "" {
-			r.validateError(item.ID)
-			Reason = append(Reason, "Validasi Customer Type dan Number")
-			continue
-		}
-		regex := regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+`)
-		if matched := regex.MatchString(item.CustomerName); !matched {
-			r.validateError(item.ID)
-			Reason = append(Reason, "Validasi Spesial Karakter")
-			continue
-		}
+		// if item.CustomerIDType == "1" && item.CustomerIDNumber == "" {
+		// 	r.validateError(item.ID)
+		// 	Reason = "Validasi Customer Type dan Number"
+		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+		// 	continue
+		// }
+		// regex := regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+`)
+		// if matched := regex.MatchString(item.CustomerName); !matched {
+		// 	r.validateError(item.ID)
+		// 	Reason = "Validasi Spesial Karakter"
+		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+		// 	continue
+		// }
 
-		if item.VehicleBpkb == "" || item.VehicleStnk == "" || item.VehicleEngineNo == "" || item.VehicleChasisNo == "" {
-			r.validateError(item.ID)
-			Reason = append(Reason, "Validasi Kosong")
-			continue
-		}
-		r.validateEngineNo(item.VehicleEngineNo)
-		if !r.validateEngineNo(item.VehicleEngineNo) {
-			r.validateError(item.ID)
-			Reason = append(Reason, "Validasi Engine No")
-			continue
-		}
-		r.validateChasisNo(item.VehicleChasisNo)
-		if !r.validateChasisNo(item.VehicleChasisNo) {
-			r.validateError(item.ID)
-			Reason = append(Reason, "Validasi Chasis No")
-			continue
-		}
+		// if item.VehicleBpkb == "" || item.VehicleStnk == "" || item.VehicleEngineNo == "" || item.VehicleChasisNo == "" {
+		// 	r.validateError(item.ID)
+		// 	Reason = "Validasi Kosong"
+		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+		// 	continue
+		// }
+		// r.validateEngineNo(item.VehicleEngineNo)
+		// if !r.validateEngineNo(item.VehicleEngineNo) {
+		// 	r.validateError(item.ID)
+		// 	Reason = "Validasi Engine No"
+		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+		// 	continue
+		// }
+		// r.validateChasisNo(item.VehicleChasisNo)
+		// if !r.validateChasisNo(item.VehicleChasisNo) {
+		// 	r.validateError(item.ID)
+		// 	Reason = "Validasi Chasis No"
+		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+		// 	continue
+		// }
 
+		//Update SC_FLAG ke 1
 		r.db.Model(&Staging).Where("id=?", item.ID).Update("sc_flag", "1")
 
 		r.db.Where("parameter = ?", "appCustCode").First(&Config)
@@ -306,7 +327,7 @@ func (r *repository) GetCustomer() ([]model.Staging_Customers, error) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		VehicleBrand, err := strconv.ParseInt(item.VehicleBrand, 10, 8)
+		VehicleType, err := strconv.ParseInt(item.VehicleType, 10, 8)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -330,14 +351,33 @@ func (r *repository) GetCustomer() ([]model.Staging_Customers, error) {
 		if err != nil {
 			fmt.Println(err)
 		}
+		//KEMEM
+		OTR, err := strconv.ParseFloat(item.LoanOtr, 32)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		LoanDownPayment, err := strconv.ParseFloat(item.LoanDownPayment, 64)
+		if err != nil {
+			fmt.Println(err)
+		}
+		LoanLoanAmountChanneling, err := strconv.ParseFloat(item.LoanLoanAmountChanneling, 64)
+		if err != nil {
+			fmt.Println(err)
+		}
+		LoanMonthlyPaymentChanneling, err := strconv.ParseFloat(item.LoanMonthlyPaymentChanneling, 64)
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		//Insert Data to Customer Data Tab , Loan Data Tab , Skala Rental Tab
 		r.insertCustomerDataTab(newCustcode, item.CustomerPpk, item.CustomerName, item.CustomerAddress1, item.CustomerAddress2, item.CustomerCity, item.CustomerZip,
 			item.CustomerBirthPlace, date, int8(idType), item.CustomerIDNumber, item.CustomerMobileNo, drawdownDate, tglPkChanneling, item.CustomerMotherMaidenName, item.ScCompany)
 
-		r.insertLoanDataTab(newCustcode, item.ScBranchCode, item.LoanOtr, item.LoanDownPayment, item.LoanLoanAmountChanneling, item.LoanLoanPeriodChanneling, float32(InterestFlat),
-			float32(InterestEffective), int8(EffectivePaymentType), item.LoanMonthlyPaymentChanneling, item.ScCreateDate, item.ScCreateDate)
+		r.insertLoanDataTab(newCustcode, item.ScBranchCode, OTR, LoanDownPayment, LoanLoanAmountChanneling, item.LoanLoanPeriodChanneling, float32(InterestFlat),
+			float32(InterestEffective), int8(EffectivePaymentType), LoanMonthlyPaymentChanneling, item.ScCreateDate, item.ScCreateDate)
 
-		r.insertVehicleDataTab(newCustcode, int(VehicleBrand), item.VehicleType, item.VehicleYear, 1, item.VehicleJenis, int8(Status), item.VehicleColor,
+		r.insertVehicleDataTab(newCustcode, int64(VehicleType), item.VehicleBrand, item.VehicleYear, 1, item.VehicleJenis, int8(Status), item.VehicleColor,
 			item.VehiclePoliceNo, item.VehicleEngineNo, item.VehicleChasisNo, item.VehicleBpkb, "1", item.VehicleStnk, "", "", "", int(VehicleDealerID), time.Now(), "system",
 			time.Now(), "system", VehicleTglStnk, VehicleTglBpkb, time.Now(), item.VehiclePoliceNo, CollateralTypeID, "", "", item.VehicleDealer,
 			item.VehicleAddressDealer1, item.VehicleAddressDealer2, item.VehicleCityDealer)

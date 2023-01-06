@@ -4,7 +4,7 @@ import "time"
 
 type Vehicle_Data_Tabs struct {
 	Custcode       string    `json:"custcode" gorm:"not null; type: varchar(25); unique"`
-	Brand          int       `json:"brand"`
+	Brand          int64     `json:"brand"`
 	Type           string    `json:"type" gorm:"type: varchar(100)"`
 	Year           string    `json:"year" gorm:"type: varchar(4)"`
 	Golongan       int8      `json:"golongan" gorm:"type: smallint"`

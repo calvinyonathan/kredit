@@ -5,16 +5,16 @@ import "time"
 type Loan_Data_Tabs struct {
 	Custcode             string    `json:"custcode" gorm:"not null; type: varchar(25); unique"`
 	Branch               string    `json:"branch" gorm:"type: varchar(50)"`
-	OTR                  string    `json:"otr" gorm:"type:money"`
-	DownPayment          string    `json:"down_payment" gorm:"type:money"`
-	LoanAmount           string    `json:"loan_amount" gorm:"type:money"`
+	OTR                  float64   `json:"otr" gorm:"type:decimal"`
+	DownPayment          float64   `json:"down_payment" gorm:"type:decimal"`
+	LoanAmount           float64   `json:"loan_amount" gorm:"type:decimal"`
 	LoanPeriod           string    `json:"loan_period" gorm:"type: varchar(6)"`
 	InterestType         int8      `json:"interest_type" gorm:"type: smallint"`
 	InterestFlat         float32   `json:"interest_flat" gorm:"type:real"`
 	InterestEffective    float32   `json:"interest_effective" gorm:"type:real"`
 	EffectivePaymentType int8      `json:"effective_payment_type" gorm:"smallint"`
-	AdminFee             string    `json:"admin_fee" gorm:"type:money"`
-	MonthlyPayment       string    `json:"monthly_payment" gorm:"type:money"`
+	AdminFee             float64   `json:"admin_fee" gorm:"type:decimal"`
+	MonthlyPayment       float64   `json:"monthly_payment" gorm:"type:decimal"`
 	InputDate            time.Time `json:"input_date" gorm:"type: timestamp"`
 	LastModified         time.Time `json:"last_modified" gorm:"type: timestamp"`
 	ModifiedBy           string    `json:"modified_by" gorm:"type: varchar(20)"`

@@ -1,15 +1,12 @@
-package CustomerDigestStaging
+package ChecklistReport
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-
-	"calvin/kredit/model"
 )
 
 type Service interface {
-	GetCustomer() ([]model.Staging_Customers, int, error)
+	GetChecklistReport() ([]response, int, error)
 }
 type service struct {
 	repo CustomerRepository
@@ -18,12 +15,11 @@ type service struct {
 func NewService(repo CustomerRepository) *service {
 	return &service{repo}
 }
-func (s *service) GetCustomer() ([]model.Staging_Customers, int, error) {
-	user, err := s.repo.GetCustomer()
+func (s *service) GetChecklistReport() ([]response, int, error) {
+	user, err := s.repo.GetChecklistReport()
 	if err != nil {
 		log.Println("Internal server error : ", err)
 		return nil, http.StatusInternalServerError, err
 	}
-	fmt.Println(s.repo.GetCustomer())
 	return user, http.StatusOK, nil
 }
