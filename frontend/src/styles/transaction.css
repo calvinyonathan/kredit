@@ -1,0 +1,36 @@
+@media only screen and (max-width: 600px) {
+    .detail p{
+        margin:0 !important;
+    }
+    .detail>div{
+        width:80%;
+        margin:0 auto;
+        /* padding:20px; */
+    }
+    .detail>div:last-child{
+        display: none;
+    }
+    .image-catalog>img{
+        max-width: 85% !important;
+        height: auto;
+        
+        /* position:absolute;
+        left:50%;
+        transform: translateX(-50%); */
+    }
+    .image-catalog{
+        display: flex;
+        justify-content: center;
+    }
+    
+}
+
+.shadow {
+    box-shadow: 0px 25px 40px #00000033;
+}
+/* @media only screen and (max-width: 800px) {
+    .side>div{
+        display: none;
+    }
+    
+} */
