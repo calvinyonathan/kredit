@@ -239,7 +239,7 @@ func (r *repository) GetCustomer() ([]model.Staging_Customers, error) {
 		// 	continue
 		// }
 		// regex := regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+`)
-		// if matched := regex.MatchString(item.CustomerName); !matched {
+		// if matched := regex.MatchString(item.CustomerName); matched {
 		// 	r.validateError(item.ID)
 		// 	Reason = "Validasi Spesial Karakter"
 		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
