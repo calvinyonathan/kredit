@@ -1,8 +1,10 @@
 .log-shadow {
-    /* box-shadow: 0px 25px 40px #00000033;  */
-    max-width: 500px;
-    max-height: 400px;  
-
+    max-width: 550px;
+    min-width: 200px;
+    max-height: 800px;
+    min-height: 300px;   
+    box-shadow: 0px 25px 40px #00000033;
+    background-image: url(../../public/assets/low-poly-grid-haikei.svg);
 }
 .login-container{
     margin-top:100px;
@@ -16,16 +18,18 @@
     border-radius: 30px;
     
 }
-.btn-input{
-    border-radius: 0px !important;
-}
 
 .btn-shadow{
-    height: 40px;
-    width: 100%;
-    padding: 0;
+    height: 40px !important;
+    width: 100% !important;
+    padding: 0 !important;
 }
-
+.btn-login{
+    height: 40px;
+    width: 30% !important;
+    padding: 0;
+    
+}
 .btn-shadow:hover {
     box-shadow: 0 8px 10px 0 rgba(0,0,0,0.1), 0 6px 20px 0 rgba(0,0,0,0.19);
 }
@@ -34,19 +38,6 @@
     /* text-shadow: 2px 2px; */
     color: black;
     text-shadow:  0px 25px 40px #00000033;
-}
-
-.login-body {
-    height: 100%;
-    width: 100%;
-    background-repeat: no-repeat;
-    background-color: #1f2555;
-    background-image: linear-gradient(-25deg, #125876 0%, #1f2555 30%);
-    background-attachment: fixed;
-    -webkit-tap-highlight-color: transparent;
-    position: fixed;
-    top: 0;
-    left: 0;
 }
 
 .a-regist {

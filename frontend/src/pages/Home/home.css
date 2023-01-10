@@ -1,0 +1,11 @@
+.content{
+    max-width: 1500px;
+    min-width: 500px;
+    max-height: 1200px;
+    min-height: 970px;    
+/*     
+    background-image: url(../../../public/assets/low-poly-grid-haikei.svg) !important; */
+}
+.home{
+    margin-top:250px;
+}

@@ -23,9 +23,13 @@ func (s *server) SetupRouter() {
 	checklistService := ChecklistReport.NewService(checklistRepo)
 	checkListHandler := ChecklistReport.NewHandler(checklistService)
 	s.Router.GET("/checklist", checkListHandler.GetChecklistReport)
+	s.Router.PUT("/approve", checkListHandler.UpdateCustomer)
+	s.Router.GET("/getbranch", checkListHandler.GetBranch)
+	s.Router.GET("/getcompany", checkListHandler.GetCompany)
 
 	GetSkalaAngsuranRepo := GenerateSkalaAngsuran.NewRepository(s.DB)
 	GetSkalaAngsuranService := GenerateSkalaAngsuran.NewService(GetSkalaAngsuranRepo)
 	GetSkalaAngsuranHandler := GenerateSkalaAngsuran.NewHandler(GetSkalaAngsuranService)
 	s.Router.GET("/skala", GetSkalaAngsuranHandler.GetSkalaAngsuran)
+
 }
