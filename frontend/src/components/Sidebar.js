@@ -1,49 +1,64 @@
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import { ICONS } from '../const';
-import './Sidebar.css';
-export default function Sidebar() {
-  const logout = () => {
-    localStorage.removeItem('name');
-    window.location.href="/"   
-  }
+import React, { useState } from 'react'
+import * as FaIcons from "react-icons/fa";
+import * as AiIcons from "react-icons/ai";
+import * as RiIcons from "react-icons/ri";
+import { Link } from 'react-router-dom';
+import { Sidebarmenu } from './Sidebarmenu';
+import './Sidebar.css'
+import { IconContext } from 'react-icons';
+
+
+
+const Sidebars = ({ selectData }) => {
+    const [sidebar, setsidebar] = useState(true)
+
+    const showSidebar = () => {
+        setsidebar(!sidebar)
+        selectData(!sidebar)
+    }
+    const logout = () => {
+      localStorage.removeItem('name');
+      window.location.href="/"   
+    }
     return (
-      <div className="d-flex">
-      <div>
-        <Nav className="flex-column" id="nav-trigger">
-          <div className="d-flex align-items-center menubar-brand">
-            {/* <img id="image-trigger"onClick={() => collapseNavbar()} src={Logo} alt={"Logo Action Figure "}></img> */}
-            <div className="d-flex flex-column">
-              <h3 className="">Program Bantu Kredit</h3>
-              <h6 className="">Hello, Calvin</h6>
-            </div>
-          </div>
-          <hr></hr>
-          <div className="">
-              <Nav.Link 
-                href="/checklist">
-                  <img src={ICONS + "user2.png"} alt={"dd"} style={{ width: "20px", height: "20px",marginRight:"10px"}} />
-                  <span className="">Checklist Report</span>
-              </Nav.Link>
-              <Nav.Link> 
-              <img src={ICONS + "user2.png"} alt={"dd"} style={{ width: "20px", height: "20px", marginRight:"10px" }} />
-                  <span className="">Drawdown Report</span>
-              </Nav.Link>
-              <hr></hr>
-          </div>
-          <div className="">
-            <div className="d-flex">
-              <div className="user-summary">
-              <Nav.Link onClick={() => logout()}> 
-                  <img src={ICONS + "log-out.png"} alt={"dd"} style={{ width: "20px", height: "20px", marginRight:"10px"}} />
-                  <span className="" >Log Out</span>
-              </Nav.Link>
-              </div>
-            </div>
-          </div>
-        </Nav>
-      </div>
-      </div>
+        <>
+            {/* <div className='navbar'>
+                <Link to='#' className='menu-bars'>
+                    <FaIcons.FaBars onClick={showSidebar} />
+                </Link>
+            </div> */}
+            <IconContext.Provider value={{ color: 'white' }}>
+                <nav className={sidebar ? 'nav-menu active' : 'nav-menu'}>
+                    <ul className='nav-menu-items' onClick={showSidebar}>
+                        <li className='navbar-toggle'>
+                            <Link to='#' className='menu-bars'>
+                                <FaIcons.FaBars />
+                  
+                            </Link>
+                        </li>
+                        {Sidebarmenu.map((item, index) => {
+                            return (
+                                <li key={index} className={item.cName}>
+                                    <Link to={item.path}>
+                                        {item.icon}
+                                        <span >{item.title}</span>
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                    <div>
+                        <li className=' nav-text position-absolute bottom-0'>
+                            <Link onClick={() => logout()}>
+                                <RiIcons.RiLogoutBoxLine />
+                                <span >Log Out</span>
+                            </Link>
+                        </li>
+                    </div>
+                </nav>
+            </IconContext.Provider>
+        </>
     )
 }
+
+export default Sidebars 

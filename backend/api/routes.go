@@ -3,6 +3,7 @@ package api
 import (
 	"calvin/kredit/ChecklistReport"
 	"calvin/kredit/CustomerDigestStaging"
+	"calvin/kredit/DrawdownReport"
 	"calvin/kredit/GenerateSkalaAngsuran"
 
 	"github.com/gin-contrib/cors"
@@ -22,7 +23,7 @@ func (s *server) SetupRouter() {
 	checklistRepo := ChecklistReport.NewRepository(s.DB)
 	checklistService := ChecklistReport.NewService(checklistRepo)
 	checkListHandler := ChecklistReport.NewHandler(checklistService)
-	s.Router.GET("/checklist", checkListHandler.GetChecklistReport)
+	s.Router.GET("/checklistBranch", checkListHandler.SearchChecklistReport)
 	s.Router.PUT("/approve", checkListHandler.UpdateCustomer)
 	s.Router.GET("/getbranch", checkListHandler.GetBranch)
 	s.Router.GET("/getcompany", checkListHandler.GetCompany)
@@ -31,5 +32,10 @@ func (s *server) SetupRouter() {
 	GetSkalaAngsuranService := GenerateSkalaAngsuran.NewService(GetSkalaAngsuranRepo)
 	GetSkalaAngsuranHandler := GenerateSkalaAngsuran.NewHandler(GetSkalaAngsuranService)
 	s.Router.GET("/skala", GetSkalaAngsuranHandler.GetSkalaAngsuran)
+
+	drawdownReportRepo := DrawdownReport.NewRepository(s.DB)
+	drawdownReportService := DrawdownReport.NewService(drawdownReportRepo)
+	drawdownReportHandler := DrawdownReport.NewHandler(drawdownReportService)
+	s.Router.GET("/drawdown", drawdownReportHandler.GetDrawdownReport)
 
 }

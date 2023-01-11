@@ -10,7 +10,7 @@ import (
 )
 
 type CustomerRepository interface {
-	GetChecklistReport() ([]response, error)
+	SearchChecklistReport(branch string, company string, startDate string, endDate string) ([]response, error)
 	GetPpk(ppk string) (model.Customer_Data_Tabs, error)
 	UpdateCustomer(customer model.Customer_Data_Tabs) (model.Customer_Data_Tabs, error)
 	GetBranch() ([]model.Branch_Tabs, error)
@@ -39,7 +39,7 @@ func NewRepository(db *gorm.DB) *repository {
 }
 func (r *repository) GetBranch() ([]model.Branch_Tabs, error) {
 	var Branch []model.Branch_Tabs
-	res := r.db.Find(&Branch)
+	res := r.db.Order("code asc").Find(&Branch)
 	if res.Error != nil {
 		log.Println("Get Data error : ", res.Error)
 		return nil, res.Error
@@ -48,7 +48,7 @@ func (r *repository) GetBranch() ([]model.Branch_Tabs, error) {
 }
 func (r *repository) GetCompany() ([]model.Mst_Company_Tabs, error) {
 	var Company []model.Mst_Company_Tabs
-	res := r.db.Find(&Company)
+	res := r.db.Order("company_code asc").Find(&Company)
 	if res.Error != nil {
 		log.Println("Get Data error : ", res.Error)
 		return nil, res.Error
@@ -79,11 +79,30 @@ func (r *repository) UpdateCustomer(customer model.Customer_Data_Tabs) (model.Cu
 	}
 	return customer, nil
 }
-
-func (r *repository) GetChecklistReport() ([]response, error) {
+func (r *repository) SearchChecklistReport(branch string, company string, startDate string, endDate string) ([]response, error) {
 
 	//res := r.db.Find(&Customer)
-	res, err := r.db.Raw("Select ROW_NUMBER() OVER (Order by cdt.name) AS RowNumber,cdt.ppk, cdt.name,cdt.channeling_company , ldt.otr , ldt.loan_amount,cdt.drawdown_date , ldt.loan_period , ldt.interest_effective, monthly_payment,vdt.collateral_id,ldt.branch from customer_data_tab cdt left join Loan_Data_Tab ldt on cdt.custcode = ldt.custcode left join vehicle_data_tab vdt on cdt.custcode = vdt.custcode where cdt.approval_status ='0'").Rows()
+	query1 := ""
+	query2 := ""
+	if branch == "000" {
+		query1 = "and ldt.branch like $1 "
+		branch = "%%"
+	} else {
+		query1 = "and ldt.branch = $1 "
+	}
+
+	if company == "All Company" {
+		query2 = "and cdt.channeling_company like $2 "
+		company = "%%"
+	} else {
+		query2 = "and cdt.channeling_company = $2 "
+	}
+
+	res, err := r.db.Raw(`Select ROW_NUMBER() OVER (Order by cdt.name) AS RowNumber,cdt.ppk, cdt.name,cdt.channeling_company , 
+	ldt.otr , ldt.loan_amount,cdt.drawdown_date , 
+	ldt.loan_period , ldt.interest_effective, monthly_payment,vdt.collateral_id,ldt.branch from 
+	customer_data_tab cdt left join Loan_Data_Tab ldt on cdt.custcode = ldt.custcode
+	left join vehicle_data_tab vdt on cdt.custcode = vdt.custcode where cdt.approval_status ='0' and drawdown_date between $3 and $4 `+query1+query2, branch, company, startDate, endDate).Rows()
 	data := []response{}
 	if err != nil {
 		panic(err)

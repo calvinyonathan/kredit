@@ -71,8 +71,13 @@ func (h *Handler) UpdateCustomer(c *gin.Context) {
 	fmt.Println(customer)
 }
 
-func (h *Handler) GetChecklistReport(c *gin.Context) {
-	user, status, err := h.Service.GetChecklistReport()
+func (h *Handler) SearchChecklistReport(c *gin.Context) {
+	branch := c.Query("branch")
+	company := c.Query("company")
+	startdate := c.Query("startdate")
+	enddate := c.Query("enddate")
+	req := GetSearchRequest{Branch: branch, Company: company, StartDate: startdate, EndDate: enddate}
+	user, status, err := h.Service.SearchChecklistReport(req)
 	if err != nil {
 		log.Println("Error handler Get : ", err)
 		c.JSON(status, gin.H{

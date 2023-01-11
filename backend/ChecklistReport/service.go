@@ -7,7 +7,7 @@ import (
 )
 
 type Service interface {
-	GetChecklistReport() ([]response, int, error)
+	SearchChecklistReport(data GetSearchRequest) ([]response, int, error)
 	GetBranch() ([]model.Branch_Tabs, int, error)
 	GetCompany() ([]model.Mst_Company_Tabs, int, error)
 	UpdateCustomer(customer PpkRequest) (model.Customer_Data_Tabs, int, error)
@@ -59,8 +59,8 @@ func (s *service) UpdateCustomer(customer PpkRequest) (model.Customer_Data_Tabs,
 	return res, http.StatusOK, nil
 }
 
-func (s *service) GetChecklistReport() ([]response, int, error) {
-	user, err := s.repo.GetChecklistReport()
+func (s *service) SearchChecklistReport(data GetSearchRequest) ([]response, int, error) {
+	user, err := s.repo.SearchChecklistReport(data.Branch, data.Company, data.StartDate, data.EndDate)
 	if err != nil {
 		log.Println("Internal server error : ", err)
 		return nil, http.StatusInternalServerError, err
