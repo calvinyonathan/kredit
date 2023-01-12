@@ -1,11 +1,18 @@
 import React, { Component } from 'react'
-import { Button, Col, Container, FormControl, FormGroup, FormSelect, Row, Table } from 'react-bootstrap'
+import { Button, Col, Container, Form, FormControl, FormGroup, FormSelect, Row, Table } from 'react-bootstrap'
 import axios from 'axios'
 import { API_URL } from '../../const'
+import swal from 'sweetalert'
+import './DrawdownReport.css'
 export default class DrawdownReport extends Component {
     constructor(props){
         super(props)
-        this.state = { customers:[],branch:[] ,company:[]};
+        this.state = { customers:[],branch:[] ,company:[],isSubmit:false , 
+            currentDate:new Date().toLocaleString('en-us', {year: 'numeric', month: '2-digit', day: '2-digit'}).
+            replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2'),
+            checked:[]
+        };
+        
     }
     componentDidMount(){
         axios
@@ -17,17 +24,6 @@ export default class DrawdownReport extends Component {
               .catch((error) => {
                 console.log("Error yaa ", error);
               });
-
-        axios
-            .get(API_URL+"/drawdown")
-            .then((res) => {
-                const customers = res.data.data;
-                this.setState({ customers });
-              })
-              .catch((error) => {
-                console.log("Error yaa ", error);
-              });
-        
         axios
               .get(API_URL+"/getcompany")
               .then((res) => {
@@ -38,10 +34,46 @@ export default class DrawdownReport extends Component {
                   console.log("Error yaa ", error);
                 });
     }
- 
+    handleSubmit = async(event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        console.log(formData.get('branch'))
+        if(formData.get('branch')=="Please Choose"){
+                swal({
+                    title: "Oops Something went wrong   ",
+                    text: "Choose Branch First !" ,
+                    icon: "info",
+                    button : false,
+                    timer : 1000,
+            })
+        }
+        else if(formData.get('company')=="Please Choose")
+        {
+            swal({
+                title: "Oops Something went wrong   ",
+                text: "Choose Company First !" ,
+                icon: "info",
+                button : false,
+                timer : 1000,
+            })
+        }
+        else{
+        this.setState({isSubmit:true})
+        axios
+            .get(API_URL+"/checklistBranch?branch="+formData.get('branch')+"&company="+formData.get('company')+"&startdate="+formData.get('startDate')+"&enddate="+formData.get('endDate'))
+            .then((res) => {
+                const customers = res.data.data;
+                this.setState({ customers });
+                console.log(customers);
+              })
+              .catch((error) => {
+                console.log("Error yaa ", error);
+              });
+        }
+    }
     render() {
         let customerList = this.state.customers.map(
-            customerList=>(
+            (customerList,key)=>(
                 <tr>
                     <td>{customerList.RowNumber}</td>
                     <td>{customerList.Ppk}</td>
@@ -50,18 +82,17 @@ export default class DrawdownReport extends Component {
                     <td>{customerList.DrawdownDate}</td>
                     <td>{customerList.Loan_Amount}</td>
                     <td>{customerList.InterestEffective}%</td>
-                    <td><input type={"checkbox"}></input></td>
                 </tr>
             )
         )
         let branchList = this.state.branch.map(
             branchList=>(
-                <option>{branchList.code}&nbsp;&nbsp;-&nbsp;&nbsp;{branchList.description}</option>
+                <option value={branchList.code}>{branchList.code}&nbsp;&nbsp;-&nbsp;&nbsp;{branchList.description}</option>
             )
         )
         let companyList = this.state.company.map(
             companyList=>(
-                <option>{companyList.company_code}&nbsp;&nbsp;-&nbsp;&nbsp;{companyList.company_short_name}</option>
+                <option value={companyList.company_short_name}>{companyList.company_code}&nbsp;&nbsp;-&nbsp;&nbsp;{companyList.company_short_name}</option>
             )
         )
     return (
@@ -71,37 +102,39 @@ export default class DrawdownReport extends Component {
             <div className='mx-auto content p-5' >
             <h1>Drawdown Report</h1>
             <hr></hr>
-            <Row className="d-flex align-items-center justify-content-center">
-                <Col className="d-flex align-items-center gap-2 justify-content mb-3">
-                    <label>Branch:</label>
-                    <FormGroup>  
-                        <FormSelect>
-                        <option className='d-none'>Please Choose</option>
-                        {branchList}
-                        </FormSelect>
-                    </FormGroup>
-                
-                    <label>Company:</label>
-                    <FormGroup>  
-                        <FormSelect>
+            <Form onSubmit={(e)=>this.handleSubmit(e)}>            
+                <Row className="d-flex align-items-center justify-content-center">
+                    <Col className="d-flex align-items-center gap-2 justify-content mb-3">
+                        <label>Branch:</label>
+                        <FormGroup>  
+                            <FormSelect name='branch'>
                             <option className='d-none'>Please Choose</option>
-                            {companyList}
-                        </FormSelect>
-                    </FormGroup>
-                   
+                            {branchList}
+                            </FormSelect>
+                        </FormGroup>
+                    
+                        <label>Company:</label>
+                        <FormGroup>  
+                            <FormSelect name='company'>
+                                <option className='d-none'>Please Choose</option>
+                                {companyList}
+                            </FormSelect>
+                        </FormGroup>
+                    
                     <label>Start: </label>
-                <FormGroup>
-                    <FormControl type='date'></FormControl>
-                </FormGroup>
-                <label>End :</label>
-                <FormGroup>
-                
-                    <FormControl type='date'></FormControl>
-                </FormGroup>    
-                <Button>Submit</Button>   
-                </Col>
-            </Row>
-            <Table striped bordered hover responsive>
+                    <FormGroup>
+                        <FormControl type='date' name='startDate' defaultValue={this.state.currentDate}></FormControl>
+                    </FormGroup>
+                    <label>End :</label>
+                    <FormGroup>
+                    
+                        <FormControl type='date' name='endDate' defaultValue={this.state.currentDate}></FormControl>
+                    </FormGroup>    
+                    <Button type='submit'>Submit</Button>   
+                    </Col>
+                </Row>
+            </Form>
+            <Table striped bordered hover responsive >
                 <thead>
                     <tr>
                     <th>No</th>
@@ -111,16 +144,13 @@ export default class DrawdownReport extends Component {
                     <th>Drawdown Date</th>
                     <th>Loan Amount</th>
                     <th>Interest Eff</th>
-                    <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {customerList}
+                {this.state.customers.length === 0 && this.state.isSubmit===true ?
+                <td colSpan={8} className='text-center py-3 border inline-block'>Tidak Ada Data</td> :   customerList}             
                 </tbody>
-            </Table>
-            <Button variant='Primary' style={{ backgroundColor:"#128297",color:"white"}}>
-                Approve
-            </Button>    
+            </Table>    
         </div>
             </Col>
         </Row>

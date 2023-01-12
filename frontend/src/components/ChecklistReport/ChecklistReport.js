@@ -180,7 +180,7 @@ export default class ChecklistReport extends Component {
                 </thead>
                 <tbody>
                 {this.state.customers.length === 0 && this.state.isSubmit===true ?
-                <td colSpan={8} className='text-center py-3 border inline-block'>Tidak Ada Data</td> :   customerList}             
+                <tr className='table'><td colSpan={8} className='text-center py-3 border inline-block'>Tidak Ada Data</td> </tr>:   customerList}             
                 </tbody>
             </Table>
             <Button onClick={() => this.updateApproval()} variant='Primary' style={{ backgroundColor:"#128297",color:"white"}}>

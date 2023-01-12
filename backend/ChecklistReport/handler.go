@@ -46,18 +46,21 @@ func (h *Handler) UpdateCustomer(c *gin.Context) {
 
 	var req []PpkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Println("Status Bad Request : ", err)
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Error bad request1"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Input data not suitable"})
 		return
 	}
 
 	status, err := h.Service.UpdateCustomer(req)
 	if err != nil {
-		c.JSON(status, gin.H{"message": "Error bad request2"})
+		c.JSON(status, gin.H{
+			"message": "Error bad request",
+			"code":    "99",
+		})
 	}
 
 	c.JSON(status, gin.H{
 		"message": "success",
+		"code":    "00",
 	})
 
 }
