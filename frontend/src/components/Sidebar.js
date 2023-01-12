@@ -41,7 +41,7 @@ const Sidebars = ({ selectData }) => {
                                 <li key={index} className={item.cName}>
                                     <Link to={item.path}>
                                         {item.icon}
-                                        <span >{item.title}</span>
+                                        <span className='span'>{item.title}</span>
                                     </Link>
                                 </li>
                             );
@@ -51,7 +51,7 @@ const Sidebars = ({ selectData }) => {
                         <li className=' nav-text position-absolute bottom-0'>
                             <Link onClick={() => logout()}>
                                 <RiIcons.RiLogoutBoxLine />
-                                <span >Log Out</span>
+                                <span className='span'>Log Out</span>
                             </Link>
                         </li>
                     </div>

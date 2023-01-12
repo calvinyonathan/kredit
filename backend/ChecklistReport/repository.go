@@ -12,7 +12,7 @@ import (
 type CustomerRepository interface {
 	SearchChecklistReport(branch string, company string, startDate string, endDate string) ([]response, error)
 	GetPpk(ppk string) (model.Customer_Data_Tabs, error)
-	UpdateCustomer(customer model.Customer_Data_Tabs) (model.Customer_Data_Tabs, error)
+	UpdateCustomer(req []PpkRequest) error
 	GetBranch() ([]model.Branch_Tabs, error)
 	GetCompany() ([]model.Mst_Company_Tabs, error)
 }
@@ -66,18 +66,16 @@ func (r *repository) GetPpk(ppk string) (model.Customer_Data_Tabs, error) {
 	}
 	return Link, nil
 }
-func (r *repository) UpdateCustomer(customer model.Customer_Data_Tabs) (model.Customer_Data_Tabs, error) {
-	_, err := r.GetPpk(customer.PPK)
-	if err != nil {
-		return model.Customer_Data_Tabs{}, errors.New("wrong data insurance")
+func (r *repository) UpdateCustomer(req []PpkRequest) error {
+	for _, req2 := range req {
+		res := r.db.Where("ppk=?", req2.Ppk).Updates(model.Customer_Data_Tabs{
+			Approval_Status: "0",
+		})
+		if res.Error != nil {
+			return res.Error
+		}
 	}
-	res := r.db.Where("ppk=?", customer.PPK).Updates(model.Customer_Data_Tabs{
-		Approval_Status: "0",
-	})
-	if res.Error != nil {
-		return model.Customer_Data_Tabs{}, res.Error
-	}
-	return customer, nil
+	return nil
 }
 func (r *repository) SearchChecklistReport(branch string, company string, startDate string, endDate string) ([]response, error) {
 
@@ -102,7 +100,7 @@ func (r *repository) SearchChecklistReport(branch string, company string, startD
 	ldt.otr , ldt.loan_amount,cdt.drawdown_date , 
 	ldt.loan_period , ldt.interest_effective, monthly_payment,vdt.collateral_id,ldt.branch from 
 	customer_data_tab cdt left join Loan_Data_Tab ldt on cdt.custcode = ldt.custcode
-	left join vehicle_data_tab vdt on cdt.custcode = vdt.custcode where cdt.approval_status ='0' and drawdown_date between $3 and $4 `+query1+query2, branch, company, startDate, endDate).Rows()
+	left join vehicle_data_tab vdt on cdt.custcode = vdt.custcode where cdt.approval_status ='9' and drawdown_date between $3 and $4 `+query1+query2, branch, company, startDate, endDate).Rows()
 	data := []response{}
 	if err != nil {
 		panic(err)

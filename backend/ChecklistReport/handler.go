@@ -1,7 +1,6 @@
 package ChecklistReport
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -45,30 +44,22 @@ func (h *Handler) GetCompany(c *gin.Context) {
 }
 func (h *Handler) UpdateCustomer(c *gin.Context) {
 
-	ppk := c.Query("ppk")
-	if ppk == "" {
-		messageErr := []string{"Param data not suitable"}
-		c.JSON(http.StatusBadRequest, gin.H{"error": messageErr})
-		return
-	}
-	reqFix := PpkRequest{
-		Ppk: ppk,
-	}
-	customer, status, err := h.Service.UpdateCustomer(reqFix)
-	if err != nil {
-		c.JSON(status, gin.H{
-			"message": err.Error(),
-			"code":    "99",
-		})
+	var req []PpkRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Println("Status Bad Request : ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Error bad request1"})
 		return
 	}
 
+	status, err := h.Service.UpdateCustomer(req)
+	if err != nil {
+		c.JSON(status, gin.H{"message": "Error bad request2"})
+	}
+
 	c.JSON(status, gin.H{
-		"message": "Update Success",
-		"data":    customer,
-		"code":    "00",
+		"message": "success",
 	})
-	fmt.Println(customer)
+
 }
 
 func (h *Handler) SearchChecklistReport(c *gin.Context) {

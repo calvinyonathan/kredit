@@ -2,12 +2,15 @@ import React, { Component } from 'react'
 import { Button, Col, Container, Form, FormControl, FormGroup, FormSelect, Row, Table } from 'react-bootstrap'
 import axios from 'axios'
 import { API_URL } from '../../const'
+import swal from 'sweetalert'
+import './ChecklistReport.css'
 export default class ChecklistReport extends Component {
     constructor(props){
         super(props)
         this.state = { customers:[],branch:[] ,company:[],isSubmit:false , 
             currentDate:new Date().toLocaleString('en-us', {year: 'numeric', month: '2-digit', day: '2-digit'}).
-            replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2')
+            replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2'),
+            checked:[]
         };
         
     }
@@ -31,11 +34,61 @@ export default class ChecklistReport extends Component {
                   console.log("Error yaa ", error);
                 });
     }
+    checklist = (id) => {
+            console.log(id)
+            const checked = [...this.state.checked,{Ppk:this.state.customers[id].Ppk}]
+            this.setState({checked})
+    }
+    updateApproval = () => {
+        if(this.state.checked.length ==0){
+            swal({
+                        title: "Oops Something went wrong   ",
+                        text: "Choose Data First !" ,
+                        icon: "info",
+                        button : false,
+                        timer : 1500,
+            })
+        }
+        else{
+            axios
+            .put('http://localhost:8080/approve', this.state.checked)
+            swal({
+                title: "Approve Sukses",
+                text: "Approve" ,
+                icon: "success",
+                button : false,
+                timer : 1500,
+            }).then(()=>{ 
+            window.location.href="/checklist"   
+            })
+        }
+     
+    }
     handleSubmit = async(event) => {
         event.preventDefault();
-        this.setState({isSubmit:true})
         const formData = new FormData(event.currentTarget);
-
+        console.log(formData.get('branch'))
+        if(formData.get('branch')=="Please Choose"){
+                swal({
+                    title: "Oops Something went wrong   ",
+                    text: "Choose Branch First !" ,
+                    icon: "info",
+                    button : false,
+                    timer : 1000,
+            })
+        }
+        else if(formData.get('company')=="Please Choose")
+        {
+            swal({
+                title: "Oops Something went wrong   ",
+                text: "Choose Company First !" ,
+                icon: "info",
+                button : false,
+                timer : 1000,
+            })
+        }
+        else{
+        this.setState({isSubmit:true})
         axios
             .get(API_URL+"/checklistBranch?branch="+formData.get('branch')+"&company="+formData.get('company')+"&startdate="+formData.get('startDate')+"&enddate="+formData.get('endDate'))
             .then((res) => {
@@ -46,10 +99,11 @@ export default class ChecklistReport extends Component {
               .catch((error) => {
                 console.log("Error yaa ", error);
               });
+        }
     }
     render() {
         let customerList = this.state.customers.map(
-            customerList=>(
+            (customerList,key)=>(
                 <tr>
                     <td>{customerList.RowNumber}</td>
                     <td>{customerList.Ppk}</td>
@@ -58,7 +112,7 @@ export default class ChecklistReport extends Component {
                     <td>{customerList.DrawdownDate}</td>
                     <td>{customerList.Loan_Amount}</td>
                     <td>{customerList.InterestEffective}%</td>
-                    <td><input type={"checkbox"}></input></td>
+                    <td><input type={"checkbox"} onChange={() => this.checklist(key)}></input></td>
                 </tr>
             )
         )
@@ -111,7 +165,7 @@ export default class ChecklistReport extends Component {
                     </Col>
                 </Row>
             </Form>
-            <Table striped bordered hover responsive>
+            <Table striped bordered hover responsive >
                 <thead>
                     <tr>
                     <th>No</th>
@@ -129,7 +183,7 @@ export default class ChecklistReport extends Component {
                 <td colSpan={8} className='text-center py-3 border inline-block'>Tidak Ada Data</td> :   customerList}             
                 </tbody>
             </Table>
-            <Button variant='Primary' style={{ backgroundColor:"#128297",color:"white"}}>
+            <Button onClick={() => this.updateApproval()} variant='Primary' style={{ backgroundColor:"#128297",color:"white"}}>
                 Approve
             </Button>    
         </div>

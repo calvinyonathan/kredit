@@ -10,7 +10,7 @@ type Service interface {
 	SearchChecklistReport(data GetSearchRequest) ([]response, int, error)
 	GetBranch() ([]model.Branch_Tabs, int, error)
 	GetCompany() ([]model.Mst_Company_Tabs, int, error)
-	UpdateCustomer(customer PpkRequest) (model.Customer_Data_Tabs, int, error)
+	UpdateCustomer(req []PpkRequest) (int, error)
 }
 type service struct {
 	repo CustomerRepository
@@ -47,18 +47,14 @@ func (s *service) GetPpk(data PpkRequest) (model.Customer_Data_Tabs, int, error)
 
 	return link, http.StatusOK, nil
 }
-func (s *service) UpdateCustomer(customer PpkRequest) (model.Customer_Data_Tabs, int, error) {
-	Customers := model.Customer_Data_Tabs{
-		Approval_Status: "0",
-		PPK:             customer.Ppk,
-	}
-	res, err := s.repo.UpdateCustomer(Customers)
+func (s *service) UpdateCustomer(req []PpkRequest) (int, error) {
+	err := s.repo.UpdateCustomer(req)
 	if err != nil {
-		return model.Customer_Data_Tabs{}, http.StatusInternalServerError, err
+		log.Println("Internal server error : ", err)
+		return http.StatusInternalServerError, err
 	}
-	return res, http.StatusOK, nil
+	return http.StatusOK, nil
 }
-
 func (s *service) SearchChecklistReport(data GetSearchRequest) ([]response, int, error) {
 	user, err := s.repo.SearchChecklistReport(data.Branch, data.Company, data.StartDate, data.EndDate)
 	if err != nil {
