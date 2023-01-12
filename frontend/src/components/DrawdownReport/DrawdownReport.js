@@ -38,7 +38,7 @@ export default class DrawdownReport extends Component {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         console.log(formData.get('branch'))
-        if(formData.get('branch')=="Please Choose"){
+        if(formData.get('branch')==="Please Choose"){
                 swal({
                     title: "Oops Something went wrong   ",
                     text: "Choose Branch First !" ,
@@ -47,7 +47,7 @@ export default class DrawdownReport extends Component {
                     timer : 1000,
             })
         }
-        else if(formData.get('company')=="Please Choose")
+        else if(formData.get('company')==="Please Choose")
         {
             swal({
                 title: "Oops Something went wrong   ",
@@ -60,7 +60,7 @@ export default class DrawdownReport extends Component {
         else{
         this.setState({isSubmit:true})
         axios
-            .get(API_URL+"/checklistBranch?branch="+formData.get('branch')+"&company="+formData.get('company')+"&startdate="+formData.get('startDate')+"&enddate="+formData.get('endDate'))
+            .get(API_URL+"/drawdown?branch="+formData.get('branch')+"&company="+formData.get('company')+"&startdate="+formData.get('startDate')+"&enddate="+formData.get('endDate'))
             .then((res) => {
                 const customers = res.data.data;
                 this.setState({ customers });
@@ -148,7 +148,7 @@ export default class DrawdownReport extends Component {
                 </thead>
                 <tbody>
                 {this.state.customers.length === 0 && this.state.isSubmit===true ?
-                <td colSpan={8} className='text-center py-3 border inline-block'>Tidak Ada Data</td> :   customerList}             
+                <tr><td colSpan={8} className='text-center'>Tidak Ada Data</td></tr> :   customerList}             
                 </tbody>
             </Table>    
         </div>

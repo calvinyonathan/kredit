@@ -1,9 +1,12 @@
 package api
 
 import (
+	"calvin/kredit/CustomerDigestStaging"
+	"calvin/kredit/GenerateSkalaAngsuran"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +20,12 @@ func MakeServer(db *gorm.DB) *server {
 		Router: gin.Default(),
 		DB:     db,
 	}
-
+	CustomerDigestStaging := CustomerDigestStaging.NewRepository(s.DB)
+	GenerateSkalaAngsuran := GenerateSkalaAngsuran.NewRepository(s.DB)
+	c := cron.New()
+	c.AddFunc("@every 1m", func() { CustomerDigestStaging.GetCustomer() })
+	c.AddFunc("@every 1m", func() { GenerateSkalaAngsuran.GetSkalaAngsuran() })
+	c.Start()
 	return s
 }
 
@@ -27,4 +35,5 @@ func (s *server) RunServer() {
 	if err := s.Router.Run(":" + port); err != nil {
 		panic(err)
 	}
+
 }

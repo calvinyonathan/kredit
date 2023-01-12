@@ -33,7 +33,6 @@ const Sidebars = ({ selectData }) => {
                         <li className='navbar-toggle'>
                             <Link to='#' className='menu-bars'>
                                 <FaIcons.FaBars />
-                  
                             </Link>
                         </li>
                         {Sidebarmenu.map((item, index) => {

@@ -15,7 +15,12 @@ func NewHandler(service Service) *Handler {
 }
 
 func (h *Handler) GetDrawdownReport(c *gin.Context) {
-	user, status, err := h.Service.GetDrawdownReport()
+	branch := c.Query("branch")
+	company := c.Query("company")
+	startdate := c.Query("startdate")
+	enddate := c.Query("enddate")
+	req := GetSearchRequest{Branch: branch, Company: company, StartDate: startdate, EndDate: enddate}
+	user, status, err := h.Service.GetDrawdownReport(req)
 	if err != nil {
 		log.Println("Error handler Get : ", err)
 		c.JSON(status, gin.H{

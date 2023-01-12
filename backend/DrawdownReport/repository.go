@@ -7,7 +7,7 @@ import (
 )
 
 type CustomerRepository interface {
-	GetDrawdownReport() ([]response, error)
+	GetDrawdownReport(branch string, company string, startDate string, endDate string) ([]response, error)
 }
 type repository struct {
 	db *gorm.DB
@@ -27,10 +27,24 @@ func NewRepository(db *gorm.DB) *repository {
 	return &repository{db}
 }
 
-func (r *repository) GetDrawdownReport() ([]response, error) {
+func (r *repository) GetDrawdownReport(branch string, company string, startDate string, endDate string) ([]response, error) {
 
-	//res := r.db.Find(&Customer)
-	res, err := r.db.Raw("Select ROW_NUMBER() OVER (Order by cdt.name) AS RowNumber,cdt.ppk, cdt.name,cdt.channeling_company ,  ldt.loan_amount,cdt.drawdown_date , ldt.loan_period , ldt.interest_effective from customer_data_tab cdt left join Loan_Data_Tab ldt on cdt.custcode = ldt.custcode left join vehicle_data_tab vdt on cdt.custcode = vdt.custcode where cdt.approval_status in('0','1') ").Rows()
+	query1 := ""
+	query2 := ""
+	if branch == "000" {
+		query1 = "and ldt.branch like $1 "
+		branch = "%%"
+	} else {
+		query1 = "and ldt.branch = $1 "
+	}
+
+	if company == "All Company" {
+		query2 = "and cdt.channeling_company like $2 "
+		company = "%%"
+	} else {
+		query2 = "and cdt.channeling_company = $2 "
+	}
+	res, err := r.db.Raw("Select ROW_NUMBER() OVER (Order by cdt.name) AS RowNumber,cdt.ppk, cdt.name,cdt.channeling_company ,  ldt.loan_amount,cdt.drawdown_date , ldt.loan_period , ldt.interest_effective from customer_data_tab cdt left join Loan_Data_Tab ldt on cdt.custcode = ldt.custcode left join vehicle_data_tab vdt on cdt.custcode = vdt.custcode where cdt.approval_status in('0','1') and drawdown_date between $3 and $4  "+query1+query2, branch, company, startDate, endDate).Rows()
 	data := []response{}
 	if err != nil {
 		panic(err)

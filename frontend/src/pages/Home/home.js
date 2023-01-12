@@ -7,9 +7,9 @@ export default class Home extends Component {
     return (
       <div>
     <Container fluid className=''>
-      <Row className='d-flex justify-content-center align-items-center'>
+      <Row className='d-flex justify-content-center align-items-center  '>
           <Col col='12' >
-            <div className='mx-auto content p-5 text-center' >
+            <div className='mx-auto content p-5 text-center home ' >
               <hr></hr>
               <h1>Welcome Program Bantu Kredit</h1>
               <h4>Supported By :</h4>

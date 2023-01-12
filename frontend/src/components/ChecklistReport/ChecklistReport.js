@@ -8,8 +8,8 @@ export default class ChecklistReport extends Component {
     constructor(props){
         super(props)
         this.state = { customers:[],branch:[] ,company:[],isSubmit:false , 
-            currentDate:new Date().toLocaleString('en-us', {year: 'numeric', month: '2-digit', day: '2-digit'}).
-            replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$1-$2'),
+            currentDate:new Date().toISOString().split('T')[0]
+            ,
             checked:[]
         };
         
@@ -34,13 +34,21 @@ export default class ChecklistReport extends Component {
                   console.log("Error yaa ", error);
                 });
     }
-    checklist = (id) => {
-            console.log(id)
-            const checked = [...this.state.checked,{Ppk:this.state.customers[id].Ppk}]
-            this.setState({checked})
+    checklist = (ppk,event) => {
+            if(event.target.checked){
+                const checked = [...this.state.checked,{Ppk:ppk}]
+                this.setState({checked})
+            }
+            else{          
+                let checkedData = this.state.checked
+                checkedData=checkedData.filter((j)=> j.Ppk !== ppk)
+                this.setState({checked:checkedData})
+            }
+
     }
     updateApproval = () => {
-        if(this.state.checked.length ==0){
+        console.log(this.state.checked)
+        if(this.state.checked.length === 0){
             swal({
                         title: "Oops Something went wrong   ",
                         text: "Choose Data First !" ,
@@ -68,7 +76,7 @@ export default class ChecklistReport extends Component {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         console.log(formData.get('branch'))
-        if(formData.get('branch')=="Please Choose"){
+        if(formData.get('branch')==="Please Choose"){
                 swal({
                     title: "Oops Something went wrong   ",
                     text: "Choose Branch First !" ,
@@ -77,7 +85,7 @@ export default class ChecklistReport extends Component {
                     timer : 1000,
             })
         }
-        else if(formData.get('company')=="Please Choose")
+        else if(formData.get('company')==="Please Choose")
         {
             swal({
                 title: "Oops Something went wrong   ",
@@ -103,7 +111,7 @@ export default class ChecklistReport extends Component {
     }
     render() {
         let customerList = this.state.customers.map(
-            (customerList,key)=>(
+            (customerList)=>(
                 <tr>
                     <td>{customerList.RowNumber}</td>
                     <td>{customerList.Ppk}</td>
@@ -112,7 +120,7 @@ export default class ChecklistReport extends Component {
                     <td>{customerList.DrawdownDate}</td>
                     <td>{customerList.Loan_Amount}</td>
                     <td>{customerList.InterestEffective}%</td>
-                    <td><input type={"checkbox"} onChange={() => this.checklist(key)}></input></td>
+                    <td><input type={"checkbox"} onChange={(e) => this.checklist(customerList.Ppk,e)}></input></td>
                 </tr>
             )
         )
@@ -180,7 +188,11 @@ export default class ChecklistReport extends Component {
                 </thead>
                 <tbody>
                 {this.state.customers.length === 0 && this.state.isSubmit===true ?
-                <tr className='table'><td colSpan={8} className='text-center py-3 border inline-block'>Tidak Ada Data</td> </tr>:   customerList}             
+                <tr className='table'>
+                    <td colSpan={8} className='text-center'>
+                        Tidak Ada Data
+                    </td> 
+                </tr>:   customerList}             
                 </tbody>
             </Table>
             <Button onClick={() => this.updateApproval()} variant='Primary' style={{ backgroundColor:"#128297",color:"white"}}>

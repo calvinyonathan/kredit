@@ -88,14 +88,16 @@ func (r *repository) GetSkalaAngsuran() ([]model.Customer_Data_Tabs, error) {
 		var maxCounter float64
 		row := r.db.Model(&model.Skala_Rental_Tabs{}).Where("custcode = ?", item.Custcode).Select("max(counter)").Row()
 		row.Scan(&maxCounter)
-		fmt.Println(maxCounter)
 		res = r.db.Where("custcode = ? and counter = ?", item.Custcode, maxCounter).First(&skala)
 		if res.Error != nil {
 			log.Println("Get Data error : ", res.Error)
 			return nil, res.Error
 		}
 		r.db.Exec("UPDATE SKALA_RENTAL_TAB SET end_balance = $1 where custcode = $2 and counter = $3", 0, item.Custcode, maxCounter)
-		r.db.Model(&customer).Where("custcode=?", item.Custcode).Update("Approval_Status", "1")
+
+		var customer2 []model.Customer_Data_Tabs
+		r.db.Model(&customer2).Where("custcode=?", item.Custcode).Update("approval_status", "1")
+
 	}
 	return customer, nil
 }

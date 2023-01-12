@@ -78,8 +78,6 @@ func (r *repository) UpdateCustomer(req []PpkRequest) error {
 	return nil
 }
 func (r *repository) SearchChecklistReport(branch string, company string, startDate string, endDate string) ([]response, error) {
-
-	//res := r.db.Find(&Customer)
 	query1 := ""
 	query2 := ""
 	if branch == "000" {
