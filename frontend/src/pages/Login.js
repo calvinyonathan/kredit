@@ -1,20 +1,57 @@
 import React, { Component } from 'react'
 import { Button,Image,Col,Row,Container,Card,Form, InputGroup } from "react-bootstrap";
 import './Login.css'
-import { ICONS } from '../const'
+import { API_URL,ICONS } from '../const'
 import swal from "sweetalert";
+import axios from 'axios'
 export default class Login extends Component {
+    constructor(props) {
+		super(props);
+		this.state ={
+            username : "",
+            password : "",  
+        }  
+	}
+    handleUsername = e => {
+        const { value } = e.target;
+        this.setState({username : value});
+    };    
+    handlePassword = e => {
+        const { value } = e.target;
+        this.setState({ password : value});
+    };
     handleSubmit = async(event) => {
-        localStorage.setItem("name","Calvin"); 
-        swal({
-            title: "Sukses Login",
-            text: "Welcome Calvin" ,
-            icon: "success",
-            button : false,
-            timer : 1500,
-        }).then(()=>{ 
-        window.location.href="/"   
-        })
+        event.preventDefault();   
+        axios
+			.get(API_URL+"/login?nik=" +this.state.username+"&password="+this.state.password)
+			.then(res => {
+                console.log(res.data.data.len);
+                if(res.data.data.length===0)
+                {
+                    swal({
+                        title: "Gagal Login",
+                        text: "Username dan Password Salah",
+                        icon: "error",
+                        button : false,
+                        timer : 1500
+                    })
+                }
+                else{
+                    localStorage.setItem("nik",this.state.username); 
+                    localStorage.setItem("login","true");
+                    swal({
+                        title: "Sukses Login",
+                        text: "Welcome " +this.state.username ,
+                        icon: "success",
+                        button : false,
+                        timer : 1500,
+                    }).then(()=>{ 
+                    window.location.href="/"   
+                    })
+                }
+            }).catch(error => console.log(error));  
+
+        
 	};
     render() {
     return (
@@ -26,8 +63,7 @@ export default class Login extends Component {
                                         <Image src="assets/BankSinarmas.png" width="300" height="200" />
                                         <Card.Body className='w-100 d-flex flex-column'>
                                             <Row>
-
-                                            <InputGroup  className="btn-shadow mb-2" >
+                                            <InputGroup  className="btn-shadow mb-2" onChange={this.handleUsername} value={this.state.username}>
                                                 <InputGroup.Text id="basic-addon1" className='btn-input'><img src={ICONS + "user2.png"} alt={"dd"} style={{ width: "20px", height: "20px", }} /></InputGroup.Text>
                                                 <Form.Control
                                                 className='btn-input'
@@ -36,7 +72,7 @@ export default class Login extends Component {
                                                 aria-describedby="basic-addon1"
                                                 />
                                             </InputGroup>
-                                            <InputGroup className="btn-shadow mb-3" >
+                                            <InputGroup className="btn-shadow mb-3" onChange={this.handlePassword} value={this.state.password} >
                                                 <InputGroup.Text className='btn-input' id="basic-addon1"><img src={ICONS + "lock.png"} alt={"dd"} style={{ width: "20px", height: "20px", }} /></InputGroup.Text>
                                                 <Form.Control
                                                 className='btn-input'

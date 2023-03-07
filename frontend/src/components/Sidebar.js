@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import * as FaIcons from "react-icons/fa";
-import * as AiIcons from "react-icons/ai";
+
 import * as RiIcons from "react-icons/ri";
 import { Link } from 'react-router-dom';
 import { Sidebarmenu } from './Sidebarmenu';
@@ -17,7 +17,8 @@ const Sidebars = ({ selectData }) => {
         selectData(!sidebar)
     }
     const logout = () => {
-      localStorage.removeItem('name');
+      localStorage.removeItem('nik');
+      localStorage.removeItem('login');
       window.location.href="/"   
     }
     return (

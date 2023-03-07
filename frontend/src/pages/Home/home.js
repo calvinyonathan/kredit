@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Button,Image,Col,Row,Container,Card,Form, InputGroup, Table } from "react-bootstrap";
-import { ICONS } from '../../const'
+import { Image,Col,Row,Container} from "react-bootstrap";
+
 import './home.css'
 export default class Home extends Component {
   render() {

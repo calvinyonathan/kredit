@@ -1,9 +1,8 @@
 import React from 'react'
-import * as FaIcons from 'react-icons/fa'
 import * as AiIcons from 'react-icons/ai'
-import * as IoIcons from 'react-icons/io'
 import * as BsIcons from "react-icons/bs"
 import * as MdIcons from 'react-icons/md'
+import * as CgIcons from 'react-icons/cg'
 export const Sidebarmenu = [
     {
         title: 'Home',
@@ -22,5 +21,11 @@ export const Sidebarmenu = [
         path: '/drawdown',
         icon: <MdIcons.MdPayment />,
         cName: 'nav-text'
+    },
+    {
+        title:'Change Password',
+        path:'/changepassword',
+        icon: <CgIcons.CgPassword />,
+        cName:'nav-text'
     }
 ]

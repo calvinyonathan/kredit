@@ -1,3 +1,9 @@
-.table{
-    border-color: black !important;
+.rdt_Table{
+    border: 1px solid ;
+}
+.rdt_TableHeadRow{
+    background-color: rgba(0, 0, 0, 0.35) !important   
+}
+.rdt_TableRow:nth-child(odd){
+    background-color: rgba(150, 160, 160, 0.15) !important   
 }

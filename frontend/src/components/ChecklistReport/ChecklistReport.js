@@ -1,16 +1,22 @@
 import React, { Component } from 'react'
-import { Button, Col, Container, Form, FormControl, FormGroup, FormSelect, Row, Table } from 'react-bootstrap'
+import { Button, Col, Container, Form, FormControl, FormGroup, FormSelect, Row } from 'react-bootstrap'
 import axios from 'axios'
 import { API_URL } from '../../const'
 import swal from 'sweetalert'
 import './ChecklistReport.css'
+import DataTable from 'react-data-table-component';
+import DataTableExtensions from 'react-data-table-component-extensions';
+import 'react-data-table-component-extensions/dist/index.css';
+
+import { customStyles } from './ChecklistTable'
 export default class ChecklistReport extends Component {
     constructor(props){
         super(props)
         this.state = { customers:[],branch:[] ,company:[],isSubmit:false , 
             currentDate:new Date().toISOString().split('T')[0]
             ,
-            checked:[]
+            checked:[],
+            data:[],
         };
         
     }
@@ -22,7 +28,7 @@ export default class ChecklistReport extends Component {
                 this.setState({ branch });
               })
               .catch((error) => {
-                console.log("Error yaa ", error);
+                //console.log("Error yaa ", error);
               });
         axios
               .get(API_URL+"/getcompany")
@@ -31,10 +37,11 @@ export default class ChecklistReport extends Component {
                   this.setState({ company });
                 })
                 .catch((error) => {
-                  console.log("Error yaa ", error);
+                  //console.log("Error yaa ", error);
                 });
     }
     checklist = (ppk,event) => {
+            //console.log(ppk)
             if(event.target.checked){
                 const checked = [...this.state.checked,{Ppk:ppk}]
                 this.setState({checked})
@@ -47,7 +54,7 @@ export default class ChecklistReport extends Component {
 
     }
     updateApproval = () => {
-        console.log(this.state.checked)
+        //console.log(this.state.checked)
         if(this.state.checked.length === 0){
             swal({
                         title: "Oops Something went wrong   ",
@@ -75,7 +82,7 @@ export default class ChecklistReport extends Component {
     handleSubmit = async(event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        console.log(formData.get('branch'))
+        //console.log(formData.get('branch'))
         if(formData.get('branch')==="Please Choose"){
                 swal({
                     title: "Oops Something went wrong   ",
@@ -102,26 +109,27 @@ export default class ChecklistReport extends Component {
             .then((res) => {
                 const customers = res.data.data;
                 this.setState({ customers });
-                console.log(customers);
               })
               .catch((error) => {
-                console.log("Error yaa ", error);
+                //onsole.log("Error yaa ", error);
               });
         }
     }
     render() {
-        let customerList = this.state.customers.map(
-            (customerList)=>(
-                <tr>
-                    <td>{customerList.RowNumber}</td>
-                    <td>{customerList.Ppk}</td>
-                    <td>{customerList.Name}</td>
-                    <td>{customerList.Channeling_Company}</td>
-                    <td>{customerList.DrawdownDate}</td>
-                    <td>{customerList.Loan_Amount}</td>
-                    <td>{customerList.InterestEffective}%</td>
-                    <td><input type={"checkbox"} onChange={(e) => this.checklist(customerList.Ppk,e)}></input></td>
-                </tr>
+        let data=[]
+        this.state.customers.map(
+            (customerList,id)=>(
+                data = [...data,{
+                    id : id+1,
+                    ppk : customerList.Ppk,
+                    name : customerList.Name,
+                    company:customerList.Channeling_Company,
+                    drawdowndate:customerList.DrawdownDate,
+                    loanamount:customerList.Loan_Amount,
+                    interesteff:customerList.InterestEffective,
+                    action :<input type={"checkbox"} onChange={(e) => this.checklist(customerList.Ppk,e)}></input>
+                }]
+                
             )
         )
         let branchList = this.state.branch.map(
@@ -134,6 +142,62 @@ export default class ChecklistReport extends Component {
                 <option value={companyList.company_short_name}>{companyList.company_code}&nbsp;&nbsp;-&nbsp;&nbsp;{companyList.company_short_name}</option>
             )
         )
+    const columns = [
+            {
+                name: 'PPK',
+                selector: 'ppk',
+                sortable: true,
+                maxWidth: '200px'
+            },
+            {
+                name: 'Name',
+                selector: 'name',
+                sortable: true,
+            },
+            {
+                name: 'Channeling Company',
+                selector: 'company',
+                sortable: true,
+            },
+            {
+                name: 'Drawdown Date',
+                selector: 'drawdowndate',
+                sortable: true,
+            },
+            {
+                name: 'Loan Amount',
+                selector: 'loanamount',
+                sortable: true,
+            },
+            {
+                name: 'Interest Eff',
+                selector:'interesteff',
+                sortable: true,
+                maxWidth: '100 px'
+            },
+            {
+             
+                cell : d=> d.action,
+                maxWidth: '10px'
+            }
+    ];
+    const data2 =[
+        {   
+            drawdowndate:'Please Choose Data',
+        }
+    ]
+    const data3 =[
+        {   
+            drawdowndate:'No Data Found',
+        }
+    ]
+    const tableData = {
+        columns,
+        data,
+    };   
+  
+    
+ 
     return (
         <Container fluid className=''> 
         <Row className='d-flex justify-content-center align-items-center'>
@@ -173,28 +237,37 @@ export default class ChecklistReport extends Component {
                     </Col>
                 </Row>
             </Form>
-            <Table striped bordered hover responsive >
-                <thead>
-                    <tr>
-                    <th>No</th>
-                    <th>Ppk</th>
-                    <th>Name</th>
-                    <th>Channeling Company</th>
-                    <th>Drawdown Date</th>
-                    <th>Loan Amount</th>
-                    <th>Interest Eff</th>
-                    <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {this.state.customers.length === 0 && this.state.isSubmit===true ?
-                <tr className='table'>
-                    <td colSpan={8} className='text-center'>
-                        Tidak Ada Data
-                    </td> 
-                </tr>:   customerList}             
-                </tbody>
-            </Table>
+            {this.state.isSubmit===false  ?
+            <DataTable
+            columns={columns}
+            data={data2}
+            pagination
+            responsive
+            /> 
+            :
+                this.state.customers.length===0 ?
+                    <DataTable
+                    columns={columns}
+                    data={data3}
+                    pagination
+                    responsive
+                    /> 
+                        :
+                    <DataTableExtensions
+                        {...tableData}
+                    >
+                    <DataTable
+                        columns={columns}
+                        data={data}
+                        pagination
+                        responsive
+                        customStyles={customStyles}
+                        defaultSortField="id"
+                    defaultSortAsc={false}
+                    />
+                    </DataTableExtensions>   
+             }  
+            
             <Button onClick={() => this.updateApproval()} variant='Primary' style={{ backgroundColor:"#128297",color:"white"}}>
                 Approve
             </Button>    

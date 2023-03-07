@@ -12,6 +12,7 @@
     "react-bootstrap": "^2.7.0",
     "react-bootstrap-sidebar-menu": "^2.0.3",
     "react-data-table-component": "^7.5.3",
+    "react-data-table-component-extensions": "^1.6.0",
     "react-dom": "^18.2.0",
     "react-pro-sidebar": "^1.0.0-alpha.9",
     "react-router-dom": "^6.6.1",

@@ -4,6 +4,7 @@ import (
 	"calvin/kredit/model"
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -193,7 +194,7 @@ func (r *repository) GetCustomer() ([]model.Staging_Customers, error) {
 	var Config model.Config_Properties
 	var ID_Tab model.ID_Tabs
 	var Company model.Mst_Company_Tabs
-	//var Reason string
+	var Reason string
 	currentTime := time.Now()
 
 	res := r.db.Where("sc_flag= ? AND sc_create_date = ?", "0", currentTime.Format("2006-01-02")).Find(&Staging)
@@ -203,69 +204,69 @@ func (r *repository) GetCustomer() ([]model.Staging_Customers, error) {
 	}
 
 	for _, item := range Staging {
-		// r.validateCustomer(item.CustomerPpk)
-		// if !r.validateCustomer(item.CustomerPpk) {
-		// 	r.validateError(item.ID)
-		// 	Reason = "Validasi Salah"
-		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
-		// 	continue
-		// }
-		// r.validateCompany(item.ScCompany)
-		// if !r.validateCompany(item.ScCompany) {
-		// 	r.validateError(item.ID)
-		// 	Reason = "Validasi Company"
-		// 	continue
-		// }
-		// r.validateBranch(item.ScBranchCode)
-		// if !r.validateBranch(item.ScBranchCode) {
-		// 	r.validateError(item.ID)
-		// 	Reason = "Validasi Branch"
-		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
-		// 	continue
-		// }
+		r.validateCustomer(item.CustomerPpk)
+		if !r.validateCustomer(item.CustomerPpk) {
+			r.validateError(item.ID)
+			Reason = "Validasi Salah"
+			r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+			continue
+		}
+		r.validateCompany(item.ScCompany)
+		if !r.validateCompany(item.ScCompany) {
+			r.validateError(item.ID)
+			Reason = "Validasi Company"
+			continue
+		}
+		r.validateBranch(item.ScBranchCode)
+		if !r.validateBranch(item.ScBranchCode) {
+			r.validateError(item.ID)
+			Reason = "Validasi Branch"
+			r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+			continue
+		}
 
-		// r.validateTglPK(item.LoanTglPk, int(currentTime.Month()))
-		// if !r.validateTglPK(item.LoanTglPk, int(currentTime.Month())) {
-		// 	r.validateError(item.ID)
-		// 	Reason = "Validasi Tanggal PK"
-		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
-		// 	continue
-		// }
+		r.validateTglPK(item.LoanTglPk, int(currentTime.Month()))
+		if !r.validateTglPK(item.LoanTglPk, int(currentTime.Month())) {
+			r.validateError(item.ID)
+			Reason = "Validasi Tanggal PK"
+			r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+			continue
+		}
 
-		// if item.CustomerIDType == "1" && item.CustomerIDNumber == "" {
-		// 	r.validateError(item.ID)
-		// 	Reason = "Validasi Customer Type dan Number"
-		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
-		// 	continue
-		// }
-		// regex := regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+`)
-		// if matched := regex.MatchString(item.CustomerName); matched {
-		// 	r.validateError(item.ID)
-		// 	Reason = "Validasi Spesial Karakter"
-		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
-		// 	continue
-		// }
+		if item.CustomerIDType == "1" && item.CustomerIDNumber == "" {
+			r.validateError(item.ID)
+			Reason = "Validasi Customer Type dan Number"
+			r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+			continue
+		}
+		regex := regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+`)
+		if matched := regex.MatchString(item.CustomerName); matched {
+			r.validateError(item.ID)
+			Reason = "Validasi Spesial Karakter"
+			r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+			continue
+		}
 
-		// if item.VehicleBpkb == "" || item.VehicleStnk == "" || item.VehicleEngineNo == "" || item.VehicleChasisNo == "" {
-		// 	r.validateError(item.ID)
-		// 	Reason = "Validasi Kosong"
-		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
-		// 	continue
-		// }
-		// r.validateEngineNo(item.VehicleEngineNo)
-		// if !r.validateEngineNo(item.VehicleEngineNo) {
-		// 	r.validateError(item.ID)
-		// 	Reason = "Validasi Engine No"
-		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
-		// 	continue
-		// }
-		// r.validateChasisNo(item.VehicleChasisNo)
-		// if !r.validateChasisNo(item.VehicleChasisNo) {
-		// 	r.validateError(item.ID)
-		// 	Reason = "Validasi Chasis No"
-		// 	r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
-		// 	continue
-		// }
+		if item.VehicleBpkb == "" || item.VehicleStnk == "" || item.VehicleEngineNo == "" || item.VehicleChasisNo == "" {
+			r.validateError(item.ID)
+			Reason = "Validasi Kosong"
+			r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+			continue
+		}
+		r.validateEngineNo(item.VehicleEngineNo)
+		if !r.validateEngineNo(item.VehicleEngineNo) {
+			r.validateError(item.ID)
+			Reason = "Validasi Engine No"
+			r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+			continue
+		}
+		r.validateChasisNo(item.VehicleChasisNo)
+		if !r.validateChasisNo(item.VehicleChasisNo) {
+			r.validateError(item.ID)
+			Reason = "Validasi Chasis No"
+			r.insertStagingError(item.ScReff, item.ScCreateDate, item.ScBranchCode, item.ScCompany, item.CustomerPpk, item.CustomerName, Reason)
+			continue
+		}
 
 		//Update SC_FLAG ke 1
 		r.db.Model(&Staging).Where("id=?", item.ID).Update("sc_flag", "1")
@@ -351,7 +352,6 @@ func (r *repository) GetCustomer() ([]model.Staging_Customers, error) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		//KEMEM
 		OTR, err := strconv.ParseFloat(item.LoanOtr, 32)
 		if err != nil {
 			fmt.Println(err)
